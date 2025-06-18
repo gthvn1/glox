@@ -1,0 +1,121 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #282828;       /* dark brown */
+  color: #ebdbb2;            /* light beige */
+}
+
+.main-container {
+  display: flex;
+  gap: 20px; /* gap between left and right panels */
+  padding: 10px;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.left-panel {
+  flex: 1;  /* take remaining width */
+  display: flex;
+  flex-direction: column;
+  height: 95vh; /* 95% of viewport height */
+  background-color: #3c3836; /* medium brown */
+  border-radius: 8px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.left-panel textarea {
+  flex-grow: 1; /* textarea takes all vertical space except button */
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  resize: none;
+  box-sizing: border-box;
+  background: #504945;      /* lighter brown */
+  border: 1px solid #665c54; /* darker border */
+  color: #ebdbb2;           /* light text */
+}
+
+.left-panel button {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  background-color: #d65d0e; /* orange */
+  color: #fbf1c7;            /* light beige */
+  transition: background-color 0.3s;
+}
+
+.left-panel button:hover {
+  background-color: #b3500b; /* darker orange */
+}
+
+.right-panel {
+  width: 500px; /* fixed width */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* space between stacked textareas */
+  background-color: #3c3836; /* same medium brown for consistency */
+  border-radius: 8px;
+  padding: 10px;
+  box-sizing: border-box;
+  height: 95vh; /* same height as left panel */
+}
+
+.right-panel textarea {
+  height: calc((95vh - 30px) / 3); /* split height evenly minus gaps */
+  width: 100%;
+  border-radius: 8px;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  resize: none;
+  box-sizing: border-box;
+  background: #504945;      /* lighter brown */
+  border: 1px solid #665c54; /* darker border */
+  color: #ebdbb2;           /* light text */
+}
+
+.bubbles {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.bubbles span {
+  position: absolute;
+  bottom: -50px;
+  width: 20px;
+  height: 20px;
+  background: rgba(214, 93, 14, 0.3); /* warm orange translucent */
+  border-radius: 50%;
+  animation: rise 8s linear infinite;
+  opacity: 0.6;
+}
+
+.bubbles span:nth-child(1) { left: 20%; animation-delay: 0s; }
+.bubbles span:nth-child(2) { left: 40%; animation-delay: 2s; width: 15px; height: 15px; }
+.bubbles span:nth-child(3) { left: 60%; animation-delay: 4s; }
+.bubbles span:nth-child(4) { left: 80%; animation-delay: 1s; width: 25px; height: 25px; }
+.bubbles span:nth-child(5) { left: 50%; animation-delay: 3s; }
+
+@keyframes rise {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-120vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
