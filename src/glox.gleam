@@ -6,6 +6,8 @@ import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
 
+import hello
+
 pub fn main() {
   let app = lustre.application(init, update, view)
   let assert Ok(_) = lustre.start(app, "#app", Nil)
@@ -14,11 +16,11 @@ pub fn main() {
 }
 
 type Model {
-  Model(x: Int, str: String)
+  Model(x: Int, input: String, output: String)
 }
 
 fn init(_args) -> #(Model, Effect(Msg)) {
-  #(Model(0, ""), effect.none())
+  #(Model(0, "", ""), effect.none())
 }
 
 type Msg {
@@ -28,8 +30,11 @@ type Msg {
 
 fn update(model: Model, msg: Msg) -> #(Model, Effect(msg)) {
   case msg {
-    UserClickedRunGlox -> #(Model(model.x + 1, model.str), effect.none())
-    HandleInput(s) -> #(Model(model.x, s), effect.none())
+    UserClickedRunGlox -> #(
+      Model(model.x + 1, model.input, hello.say_hello(model.input)),
+      effect.none(),
+    )
+    HandleInput(s) -> #(Model(model.x, s, model.output), effect.none())
   }
 }
 
@@ -50,40 +55,24 @@ fn view(model: Model) -> Element(Msg) {
       html.div([attribute.class("left-panel")], [
         html.textarea(
           [
-            attribute.id("input"),
-            attribute.value(model.str),
+            attribute.value(model.input),
             attribute.rowspan(30),
             attribute.placeholder("// Write some lox here"),
             event.on_input(HandleInput),
           ],
-          "this is a textarea",
+          "",
         ),
         html.br([]),
-        html.button(
-          [attribute.id("scan-button"), event.on_click(UserClickedRunGlox)],
-          [html.text("Run GLOX")],
-        ),
+        html.button([event.on_click(UserClickedRunGlox)], [
+          html.text("Run GLOX"),
+        ]),
       ]),
       // and a right-panel to display result of scanner, parser and evaluator.
+      // Currently we are just printing input, output and count...
       html.div([attribute.class("right-panel")], [
-        html.textarea(
-          [attribute.class("scan-output"), attribute.placeholder("Scan output")],
-          model.str,
-        ),
-        html.textarea(
-          [
-            attribute.class("parse-output"),
-            attribute.placeholder("Parse output"),
-          ],
-          count,
-        ),
-        html.textarea(
-          [
-            attribute.class("expr-output"),
-            attribute.placeholder("Expression output"),
-          ],
-          count,
-        ),
+        html.textarea([attribute.placeholder("// Scanner output")], model.input),
+        html.textarea([attribute.placeholder("// Parser output")], model.output),
+        html.textarea([attribute.placeholder("// Evaluator output")], count),
       ]),
     ]),
   ])
