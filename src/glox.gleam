@@ -1,7 +1,6 @@
 import gleam/int
 import lustre
 import lustre/attribute
-import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
@@ -9,7 +8,7 @@ import lustre/event
 import hello
 
 pub fn main() {
-  let app = lustre.application(init, update, view)
+  let app = lustre.simple(init, update, view)
   let assert Ok(_) = lustre.start(app, "#app", Nil)
 
   Nil
@@ -19,8 +18,8 @@ type Model {
   Model(x: Int, input: String, output: String)
 }
 
-fn init(_args) -> #(Model, Effect(Msg)) {
-  #(Model(0, "", ""), effect.none())
+fn init(_args) -> Model {
+  Model(0, "", "")
 }
 
 type Msg {
@@ -28,13 +27,13 @@ type Msg {
   HandleInput(String)
 }
 
-fn update(model: Model, msg: Msg) -> #(Model, Effect(msg)) {
+fn update(model: Model, msg: Msg) -> Model {
   case msg {
-    UserClickedRunGlox -> #(
-      Model(model.x + 1, model.input, hello.say_hello(model.input)),
-      effect.none(),
-    )
-    HandleInput(s) -> #(Model(model.x, s, model.output), effect.none())
+    UserClickedRunGlox -> {
+      let msg = hello.rot13(model.input)
+      Model(model.x + 1, model.input, msg)
+    }
+    HandleInput(s) -> Model(model.x, s, model.output)
   }
 }
 
