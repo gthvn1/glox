@@ -13,27 +13,31 @@ pub fn main() {
   Nil
 }
 
-type Model =
-  Int
+type Model {
+  Model(x: Int, str: String)
+}
 
 fn init(_args) -> #(Model, Effect(Msg)) {
-  #(0, effect.none())
+  #(Model(0, ""), effect.none())
 }
 
 type Msg {
   UserClickedRunGlox
+  HandleInput(String)
 }
 
 fn update(model: Model, msg: Msg) -> #(Model, Effect(msg)) {
   case msg {
-    UserClickedRunGlox -> #(model + 1, effect.none())
+    UserClickedRunGlox -> #(Model(model.x + 1, model.str), effect.none())
+    HandleInput(s) -> #(Model(model.x, s), effect.none())
   }
 }
 
 fn view(model: Model) -> Element(Msg) {
-  let count = int.to_string(model)
+  let count = int.to_string(model.x)
 
   html.div([], [
+    // This is used to display some bubbles. Completely useless, just for fun...
     html.div([attribute.class("bubbles")], [
       html.span([], []),
       html.span([], []),
@@ -42,12 +46,15 @@ fn view(model: Model) -> Element(Msg) {
       html.span([], []),
     ]),
     html.div([attribute.class("main-container")], [
+      // We have a left-panel that is our input,
       html.div([attribute.class("left-panel")], [
         html.textarea(
           [
             attribute.id("input"),
+            attribute.value(model.str),
             attribute.rowspan(30),
             attribute.placeholder("// Write some lox here"),
+            event.on_input(HandleInput),
           ],
           "this is a textarea",
         ),
@@ -57,10 +64,11 @@ fn view(model: Model) -> Element(Msg) {
           [html.text("Run GLOX")],
         ),
       ]),
+      // and a right-panel to display result of scanner, parser and evaluator.
       html.div([attribute.class("right-panel")], [
         html.textarea(
           [attribute.class("scan-output"), attribute.placeholder("Scan output")],
-          count,
+          model.str,
         ),
         html.textarea(
           [
