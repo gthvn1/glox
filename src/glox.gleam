@@ -5,7 +5,7 @@ import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
 
-import hello
+import rot13
 
 pub fn main() {
   let app = lustre.simple(init, update, view)
@@ -30,7 +30,7 @@ type Msg {
 fn update(model: Model, msg: Msg) -> Model {
   case msg {
     UserClickedRunGlox -> {
-      let msg = hello.rot13(model.input)
+      let msg = rot13.crypt(model.input)
       Model(model.x + 1, model.input, msg)
     }
     HandleInput(s) -> Model(model.x, s, model.output)
@@ -59,7 +59,7 @@ fn view(model: Model) -> Element(Msg) {
             attribute.placeholder("// Write some lox here"),
             event.on_input(HandleInput),
           ],
-          "",
+          "Gur dhvpx oebja sbk whzcf bire 13 ynml qbtf.",
         ),
         html.br([]),
         html.button([event.on_click(UserClickedRunGlox)], [

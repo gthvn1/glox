@@ -7,3 +7,9 @@
 ```sh
 gleam run -m lustre/dev start
 ```
+
+# Status
+
+- We are currently implementing a ROT13 converter to get familiar with Lustre.
+- The next step is to replace the converter with the Lox interpreter.
+ 
