@@ -1,11 +1,14 @@
 import gleam/int
+import gleam/list
+import gleam/string
 import lustre
 import lustre/attribute
 import lustre/element.{type Element}
 import lustre/element/html
 import lustre/event
 
-import rot13
+import interpreter/lexer
+import interpreter/token
 
 pub fn main() {
   let app = lustre.simple(init, update, view)
@@ -15,11 +18,11 @@ pub fn main() {
 }
 
 type Model {
-  Model(x: Int, input: String, output: String)
+  Model(input: String, output: String, error: Int)
 }
 
 fn init(_args) -> Model {
-  Model(0, "", "")
+  Model("", "", 0)
 }
 
 type Msg {
@@ -30,16 +33,22 @@ type Msg {
 fn update(model: Model, msg: Msg) -> Model {
   case msg {
     UserClickedRunGlox -> {
-      let msg = rot13.crypt(model.input)
-      Model(model.x + 1, model.input, msg)
+      case lexer.tokenize(model.input) {
+        #(tokens, 0) -> {
+          let msg =
+            list.map(tokens, fn(tok) { token.to_string(tok) <> "\n" })
+            |> string.concat
+          Model(model.input, msg, 0)
+        }
+        #(_, err) -> Model(model.input, "TODO: better error handling...", err)
+      }
     }
-    HandleInput(s) -> Model(model.x, s, model.output)
+    HandleInput(s) -> Model(s, model.output, model.error)
+    // Just update the input string
   }
 }
 
 fn view(model: Model) -> Element(Msg) {
-  let count = int.to_string(model.x)
-
   html.div([], [
     // This is used to display some bubbles. Completely useless, just for fun...
     html.div([attribute.class("bubbles")], [
@@ -56,10 +65,10 @@ fn view(model: Model) -> Element(Msg) {
           [
             attribute.value(model.input),
             attribute.rowspan(30),
-            attribute.placeholder("// Write some lox here"),
+            attribute.placeholder("// Write some lox her (ie: var i = 10)"),
             event.on_input(HandleInput),
           ],
-          "Gur dhvpx oebja sbk whzcf bire 13 ynml qbtf.",
+          "",
         ),
         html.br([]),
         html.button([event.on_click(UserClickedRunGlox)], [
@@ -69,9 +78,15 @@ fn view(model: Model) -> Element(Msg) {
       // and a right-panel to display result of scanner, parser and evaluator.
       // Currently we are just printing input, output and count...
       html.div([attribute.class("right-panel")], [
-        html.textarea([attribute.placeholder("// Scanner output")], model.input),
-        html.textarea([attribute.placeholder("// Parser output")], model.output),
-        html.textarea([attribute.placeholder("// Evaluator output")], count),
+        html.textarea([attribute.placeholder("// Input")], model.input),
+        html.textarea([attribute.placeholder("// Lexer output")], model.output),
+        html.textarea(
+          [attribute.placeholder("// Returned error")],
+          case model.error {
+            e if e == 0 -> "No error"
+            e -> "Found error " <> e |> int.to_string
+          },
+        ),
       ]),
     ]),
   ])
