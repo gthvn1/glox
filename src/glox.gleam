@@ -18,11 +18,11 @@ pub fn main() {
 }
 
 type Model {
-  Model(input: String, output: String, error: Int)
+  Model(input: String, output: String, error: String)
 }
 
 fn init(_args) -> Model {
-  Model("", "", 0)
+  Model("", "", "")
 }
 
 type Msg {
@@ -33,18 +33,17 @@ type Msg {
 fn update(model: Model, msg: Msg) -> Model {
   case msg {
     UserClickedRunGlox -> {
-      case lexer.tokenize(model.input) {
-        #(tokens, 0) -> {
-          let msg =
-            list.map(tokens, fn(tok) { token.to_string(tok) <> "\n" })
-            |> string.concat
-          Model(model.input, msg, 0)
-        }
-        #(_, err) -> Model(model.input, "TODO: better error handling...", err)
+      let #(tokens, err) = lexer.tokenize(model.input)
+      let output =
+        list.map(tokens, fn(tok) { token.to_string(tok) <> "\n" })
+        |> string.concat
+      let err = case err {
+        lexer.ScannerError(0, _) -> "No error"
+        _ -> "Error found: " <> err.reason
       }
+      Model(model.input, output, err)
     }
     HandleInput(s) -> Model(s, model.output, model.error)
-    // Just update the input string
   }
 }
 
@@ -80,13 +79,7 @@ fn view(model: Model) -> Element(Msg) {
       html.div([attribute.class("right-panel")], [
         html.textarea([attribute.placeholder("// Input")], model.input),
         html.textarea([attribute.placeholder("// Lexer output")], model.output),
-        html.textarea(
-          [attribute.placeholder("// Returned error")],
-          case model.error {
-            e if e == 0 -> "No error"
-            e -> "Found error " <> e |> int.to_string
-          },
-        ),
+        html.textarea([attribute.placeholder("// Returned error")], model.error),
       ]),
     ]),
   ])
