@@ -49,6 +49,15 @@ pub fn tokenize(input: String) -> #(List(t.Token), ScannerError) {
 
 fn handle_error(e: t.TokenError, scan_state: ScannerState) -> ScannerState {
   case e {
+    t.Unknown(#(c, _, line)) ->
+      ScannerState(
+        ..scan_state,
+        tokens: scan_state.tokens |> list.reverse,
+        err: ScannerError(
+          65,
+          "Unknown " <> c <> " at " <> line |> int.to_string,
+        ),
+      )
     t.UnterminatedString(line) ->
       ScannerState(
         ..scan_state,
